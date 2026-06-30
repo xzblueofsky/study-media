@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "study-media"
+version = "0.1.0"
+description = "Personal video-to-audio-and-transcript study package generator."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "zhaoxin" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+transcribe = [
+  "faster-whisper>=1.1.0"
+]
+
+[project.scripts]
+study-media = "study_media.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

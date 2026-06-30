@@ -1,0 +1,24 @@
+# Copy this file to config.toml and adjust paths for each Mac.
+
+courses_root = "/Users/zhaoxin/workspace/study/courses"
+library_root = "/Users/zhaoxin/workspace/study/study_project/library"
+iphone_export_root = "/Users/zhaoxin/workspace/study/study_project/iphone_export"
+
+[audio]
+ffmpeg = "ffmpeg"
+ffprobe = "ffprobe"
+bitrate = "128k"
+
+[transcribe]
+backend = "faster-whisper"
+model = "small"
+language = "en"
+device = "auto"
+compute_type = "default"
+vad_filter = true
+word_timestamps = false
+
+[export]
+enabled = true
+embed_audio_in_html = false
+
