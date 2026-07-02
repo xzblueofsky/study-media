@@ -95,7 +95,7 @@ HTML_TEMPLATE = """<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>{title}</title>
   <style>
     :root {{
@@ -124,6 +124,7 @@ HTML_TEMPLATE = """<!doctype html>
       color: var(--fg);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.58;
+      -webkit-text-size-adjust: 100%;
     }}
     header {{
       position: sticky;
@@ -169,6 +170,8 @@ HTML_TEMPLATE = """<!doctype html>
       text-align: left;
       font: inherit;
       cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: color-mix(in srgb, var(--accent) 22%, transparent);
     }}
     .segment:focus-visible {{
       outline: 2px solid var(--accent);
@@ -206,6 +209,8 @@ HTML_TEMPLATE = """<!doctype html>
     const audio = document.getElementById("audio");
     const segments = Array.from(document.querySelectorAll(".segment"));
     let active = null;
+    let lastTouchAt = 0;
+    let touchStart = null;
 
     function setActive(button) {{
       if (active === button) return;
@@ -217,11 +222,40 @@ HTML_TEMPLATE = """<!doctype html>
       }}
     }}
 
+    function seekTo(button) {{
+      audio.currentTime = Number(button.dataset.start);
+      setActive(button);
+      const playRequest = audio.play();
+      if (playRequest && typeof playRequest.catch === "function") {{
+        playRequest.catch(() => {{}});
+      }}
+    }}
+
     segments.forEach((button) => {{
-      button.addEventListener("click", () => {{
-        audio.currentTime = Number(button.dataset.start);
-        audio.play();
-        setActive(button);
+      button.addEventListener("touchstart", (event) => {{
+        const touch = event.changedTouches[0];
+        touchStart = {{ x: touch.clientX, y: touch.clientY, at: Date.now() }};
+      }}, {{ passive: true }});
+
+      button.addEventListener("touchend", (event) => {{
+        const touch = event.changedTouches[0];
+        const moved = touchStart
+          ? Math.hypot(touch.clientX - touchStart.x, touch.clientY - touchStart.y)
+          : 0;
+        const elapsed = touchStart ? Date.now() - touchStart.at : 0;
+        touchStart = null;
+        if (moved > 12 || elapsed > 900) return;
+        event.preventDefault();
+        lastTouchAt = Date.now();
+        seekTo(button);
+      }}, {{ passive: false }});
+
+      button.addEventListener("click", (event) => {{
+        if (Date.now() - lastTouchAt < 700) {{
+          event.preventDefault();
+          return;
+        }}
+        seekTo(button);
       }});
     }});
 
@@ -238,4 +272,3 @@ HTML_TEMPLATE = """<!doctype html>
 </body>
 </html>
 """
-

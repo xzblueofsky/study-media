@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from study_media.render import format_timestamp, render_markdown
+from study_media.render import format_timestamp, render_html, render_markdown
 
 
 class RenderTests(unittest.TestCase):
@@ -31,7 +31,23 @@ class RenderTests(unittest.TestCase):
         self.assertIn("# Lesson", text)
         self.assertIn("[00:00:00] Hello world.", text)
 
+    def test_render_html_has_mobile_touch_handlers(self):
+        transcript = {
+            "segments": [{"start": 0.0, "end": 1.0, "text": "Hello world."}],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "study.html"
+            render_html(
+                transcript,
+                output,
+                title="Lesson",
+                course="Course",
+                audio_filename="audio.m4a",
+            )
+            text = output.read_text(encoding="utf-8")
+        self.assertIn('addEventListener("touchend"', text)
+        self.assertIn("touch-action: manipulation", text)
+
 
 if __name__ == "__main__":
     unittest.main()
-
