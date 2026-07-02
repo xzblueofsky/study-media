@@ -8,23 +8,35 @@ For phase 1, process one video:
 study-media process /Users/zhaoxin/workspace/study/courses/3Blue1Brown/Entropy-Compression.mp4
 ```
 
-Then send this folder to iPhone:
+Then send the exported standalone HTML to iPhone:
 
 ```text
 /Users/zhaoxin/workspace/study/study_project/iphone_export/3Blue1Brown/Entropy-Compression
 ```
 
-Open the `.m4a` for audio-only listening, the `.md` for plain text reading, or the `.html` for reading while listening.
+Open the `.html` for reading while listening. Keep the `.m4a` for audio-only listening and the `.md` for plain text reading.
+
+Recommended iPhone structure:
+
+```text
+On My iPhone/
+  StudyMedia/
+    3Blue1Brown/
+      Entropy-Compression/
+        Entropy-Compression.html
+        Entropy-Compression.m4a
+        Entropy-Compression.md
+```
 
 ## When HTML Cannot Find Audio On iPhone
 
-The normal HTML file expects the `.m4a` to be in the same folder. If iPhone separates the files during transfer, rerun with:
+Older exports may expect the `.m4a` to be in the same folder. If the iPhone audio control shows `Error`, rerun with:
 
 ```bash
-study-media process /path/to/video.mp4 --embed-audio --force-transcript
+study-media process /path/to/video.mp4 --embed-audio
 ```
 
-This produces a larger but standalone HTML file in `iphone_export`.
+This produces a larger but standalone HTML file in `iphone_export`. It does not rerun transcription when `transcript.json` already exists.
 
 ## Model Choice
 
@@ -51,4 +63,3 @@ For automatic language detection:
 ```bash
 study-media process video.mp4 --language auto
 ```
-

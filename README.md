@@ -38,6 +38,8 @@ iphone_export/
 
 If a same-name `.m4a` already exists next to the video, such as `Entropy-Compression.m4a`, the tool reuses it instead of extracting audio again.
 
+For iPhone export, the recommended default is a standalone HTML file with audio embedded. This avoids iOS Files/Safari local-file restrictions where an HTML file opens but cannot play a sibling `.m4a` file.
+
 ## Install
 
 From this repository:
@@ -91,17 +93,19 @@ study-media process video.mp4 --force-transcript
 study-media process video.mp4 --embed-audio
 ```
 
-`--skip-transcribe` is useful for quickly testing audio extraction. `--embed-audio` creates an exported HTML file with the audio embedded, which is larger but easier to open as a single standalone file on iPhone.
+`--skip-transcribe` is useful for quickly testing audio extraction. `--embed-audio` creates an exported HTML file with the audio embedded, which is larger but easier to open as a single standalone file on iPhone. This is the recommended mode for iPhone reading-while-listening.
 
 ## iPhone Transfer
 
 Since iCloud Drive is full, use one of these:
 
-1. AirDrop the lesson folder under `iphone_export/`. This is simplest for a few lessons. Apple also positions AirDrop for nearby device file transfer: <https://support.apple.com/en-us/102538>
+1. AirDrop the standalone `.html` under `iphone_export/`. This is simplest for a few lessons. Apple also positions AirDrop for nearby device file transfer: <https://support.apple.com/en-us/102538>
 2. For bigger batches, connect the iPhone by USB and use Finder file transfer into an app that can store local files, such as VLC, Infuse, or Documents. Apple documents this Finder flow here: <https://support.apple.com/guide/mac-help/sync-files-to-your-device-mchl4bd77d3a/mac>
 3. For local-network transfer, enable macOS File Sharing and connect from the iPhone Files app using `smb://<your-mac-name>.local`.
 
 AirDrop is still the best default for your current workflow. USB Finder transfer is the most reliable fallback when sending many lessons or very large standalone HTML files.
+
+On iPhone, prefer storing files under `On My iPhone/StudyMedia/...` instead of iCloud Drive Downloads when iCloud storage is full.
 
 ## Development
 

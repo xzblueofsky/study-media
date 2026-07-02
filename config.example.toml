@@ -20,5 +20,6 @@ word_timestamps = false
 
 [export]
 enabled = true
-embed_audio_in_html = false
-
+# Recommended for iPhone Files/AirDrop: the HTML can play without reading
+# a sibling .m4a file from the same folder.
+embed_audio_in_html = true
