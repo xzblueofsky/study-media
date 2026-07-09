@@ -8,6 +8,7 @@ from typing import Sequence
 from . import __version__
 from .doctor import run_doctor
 from .errors import StudyMediaError
+from .package import create_study_package
 from .processor import ProcessOptions, process_video
 from .settings import load_config
 
@@ -46,6 +47,15 @@ def build_parser() -> argparse.ArgumentParser:
     doctor = subparsers.add_parser("doctor", help="check local setup")
     doctor.add_argument("--config", type=Path, default=None, help="config TOML path")
     doctor.set_defaults(func=run_doctor_command)
+
+    package = subparsers.add_parser("package", help="create a .study package for the iPhone app")
+    package.add_argument(
+        "target",
+        help="video path, lesson directory, or course/lesson such as 3Blue1Brown/Entropy-Compression",
+    )
+    package.add_argument("--config", type=Path, default=None, help="config TOML path")
+    package.add_argument("--output", type=Path, default=None, help="output .study path")
+    package.set_defaults(func=run_package)
 
     return parser
 
@@ -111,6 +121,18 @@ def run_doctor_command(args: argparse.Namespace) -> int:
         if not ok and name in {"courses_root", "ffmpeg", "ffprobe"}:
             has_error = True
     return 1 if has_error else 0
+
+
+def run_package(args: argparse.Namespace) -> int:
+    config = load_config(args.config)
+    result = create_study_package(args.target, config, output_path=args.output)
+    manifest = result["manifest"]
+    print("Created study package:")
+    print(f"  course:   {manifest['course']}")
+    print(f"  title:    {manifest['title']}")
+    print(f"  segments: {manifest['segments_count']}")
+    print(f"  package:  {result['package']}")
+    return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:

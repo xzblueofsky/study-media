@@ -1,46 +1,49 @@
-# Usage Guide
+# 使用指南
 
-## Daily Flow
+## 日常流程
 
-For phase 1, process one video:
+处理单个视频：
 
 ```bash
 study-media process /Users/zhaoxin/workspace/study/courses/3Blue1Brown/Entropy-Compression.mp4
 ```
 
-Then send the exported standalone HTML to iPhone:
+生成 iPhone 原生 App 使用的 `.study` 学习包：
 
-```text
-/Users/zhaoxin/workspace/study/study_project/iphone_export/3Blue1Brown/Entropy-Compression
+```bash
+study-media package 3Blue1Brown/Entropy-Compression
 ```
 
-Open the `.html` for reading while listening. Keep the `.m4a` for audio-only listening and the `.md` for plain text reading.
+输出：
 
-Recommended iPhone structure:
+```text
+/Users/zhaoxin/workspace/study/study_project/iphone_export/packages/3Blue1Brown/Entropy-Compression.study
+```
+
+推荐 iPhone Files 临时目录：
 
 ```text
 On My iPhone/
   StudyMedia/
-    3Blue1Brown/
-      Entropy-Compression/
-        Entropy-Compression.html
-        Entropy-Compression.m4a
-        Entropy-Compression.md
+    Inbox/
+      Entropy-Compression.study
 ```
 
-## When HTML Cannot Find Audio On iPhone
+导入到 `StudyPlayer` 后，Files 里的 `.study` 可以删除。
 
-Older exports may expect the `.m4a` to be in the same folder. If the iPhone audio control shows `Error`, rerun with:
+## 旧 HTML 方案
+
+HTML 仍然可以生成，用于 Mac 上快速预览：
 
 ```bash
 study-media process /path/to/video.mp4 --embed-audio
 ```
 
-This produces a larger but standalone HTML file in `iphone_export`. It does not rerun transcription when `transcript.json` already exists.
+但 iPhone Files/Quick Look 对 HTML JavaScript 交互支持不稳定，所以正式离线学习推荐使用 `StudyPlayer` App 和 `.study` 包。
 
-## Model Choice
+## 模型选择
 
-Good starting points:
+常用选择：
 
 ```bash
 study-media process video.mp4 --model base
@@ -48,17 +51,17 @@ study-media process video.mp4 --model small
 study-media process video.mp4 --model medium
 ```
 
-`base` is faster and cheaper for rough study notes. `small` is the default balance. `medium` is slower but often more accurate.
+`base` 更快，`small` 是默认平衡，`medium` 更慢但通常更准。
 
-## Language Choice
+## 语言选择
 
-For English videos:
+英文视频：
 
 ```bash
 study-media process video.mp4 --language en
 ```
 
-For automatic language detection:
+自动识别：
 
 ```bash
 study-media process video.mp4 --language auto

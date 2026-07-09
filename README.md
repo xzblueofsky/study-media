@@ -1,135 +1,140 @@
 # study-media
 
-`study-media` is a small personal tool for turning course videos into iPhone-friendly study packages:
+`study-media` 是一个个人学习媒体工具：在 Mac 上把课程视频处理成音频、文字和 `.study` 学习包，再用 iPhone 上的原生 `StudyPlayer` App 离线播放。
 
-- `.m4a` audio for listening.
-- `.md` transcript for reading, searching, and later note-taking.
-- `.html` transcript player for reading while listening.
+## 现在支持什么
 
-The project is intentionally local-first. Source videos stay in your course folders, generated assets stay on your Mac, and only the small export folder needs to be sent to your iPhone.
-
-## Current Scope
-
-Phase 1 supports processing one video at a time:
+Mac 端：
 
 ```bash
-study-media process /Users/zhaoxin/workspace/study/courses/3Blue1Brown/Entropy-Compression.mp4
+study-media process /path/to/video.mp4
+study-media package /path/to/video.mp4
 ```
 
-It creates:
+iPhone 端：
 
 ```text
-library/
-  3Blue1Brown/
-    Entropy-Compression/
-      audio.m4a
-      transcript.json
-      transcript.md
-      study.html
-      source.json
-
-iphone_export/
-  3Blue1Brown/
-    Entropy-Compression/
-      Entropy-Compression.m4a
-      Entropy-Compression.md
-      Entropy-Compression.html
+StudyPlayer App
+  导入 .study
+  离线播放音频
+  点击文字跳转到对应时间
+  自动保存播放进度
 ```
 
-If a same-name `.m4a` already exists next to the video, such as `Entropy-Compression.m4a`, the tool reuses it instead of extracting audio again.
+## 目录结构
 
-For iPhone export, the recommended default is a standalone HTML file with audio embedded. This avoids iOS Files/Safari local-file restrictions where an HTML file opens but cannot play a sibling `.m4a` file.
+```text
+courses/                         原始课程视频，长期保存
+library/                         Mac 上的长期生成库，不手动改
+iphone_export/packages/          传给 iPhone 的 .study 包
+ios/StudyPlayer/                 iPhone 原生 App 工程
+```
 
-## Install
+`library/`、`iphone_export/`、`config.toml` 都不会提交到 Git。
 
-From this repository:
+## Mac 环境
+
+建议使用 conda 环境：
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+conda create -n study_media python=3.11 -y
+conda activate study_media
+cd /Users/zhaoxin/workspace/study/study_project
 python -m pip install --upgrade pip
 python -m pip install -e '.[transcribe]'
 ```
 
-Install `ffmpeg` if it is not already available:
+如果还没有 ffmpeg：
 
 ```bash
-brew install ffmpeg
+conda install -c conda-forge ffmpeg -y
 ```
 
-The first transcription run downloads the selected Whisper model. The default model is `small`.
-
-## Configure
-
-Create a local config file:
-
-```bash
-cp config.example.toml config.toml
-```
-
-Edit `config.toml` when using another Mac. The default paths are:
-
-```toml
-courses_root = "/Users/zhaoxin/workspace/study/courses"
-library_root = "/Users/zhaoxin/workspace/study/study_project/library"
-iphone_export_root = "/Users/zhaoxin/workspace/study/study_project/iphone_export"
-```
-
-`config.toml`, `library/`, and `iphone_export/` are ignored by Git.
-
-## Process One Video
-
-```bash
-study-media process /Users/zhaoxin/workspace/study/courses/3Blue1Brown/Entropy-Compression.mp4
-```
-
-Useful options:
-
-```bash
-study-media process video.mp4 --model base
-study-media process video.mp4 --language auto
-study-media process video.mp4 --skip-transcribe
-study-media process video.mp4 --force-transcript
-study-media process video.mp4 --embed-audio
-```
-
-`--skip-transcribe` is useful for quickly testing audio extraction. `--embed-audio` creates an exported HTML file with the audio embedded, which is larger but easier to open as a single standalone file on iPhone. This is the recommended mode for iPhone reading-while-listening.
-
-## iPhone Transfer
-
-Since iCloud Drive is full, use one of these:
-
-1. AirDrop the standalone `.html` under `iphone_export/`. This is simplest for a few lessons. Apple also positions AirDrop for nearby device file transfer: <https://support.apple.com/en-us/102538>
-2. For bigger batches, connect the iPhone by USB and use Finder file transfer into an app that can store local files, such as VLC, Infuse, or Documents. Apple documents this Finder flow here: <https://support.apple.com/guide/mac-help/sync-files-to-your-device-mchl4bd77d3a/mac>
-3. For local-network transfer, enable macOS File Sharing and connect from the iPhone Files app using `smb://<your-mac-name>.local`.
-
-AirDrop is still the best default for your current workflow. USB Finder transfer is the most reliable fallback when sending many lessons or very large standalone HTML files.
-
-On iPhone, prefer storing files under `On My iPhone/StudyMedia/...` instead of iCloud Drive Downloads when iCloud storage is full.
-
-## Development
-
-Run tests:
-
-```bash
-PYTHONPATH=src python -m unittest discover -s tests -p 'test_*.py'
-```
-
-Run the CLI without installing:
-
-```bash
-PYTHONPATH=src python -m study_media process /path/to/video.mp4
-```
-
-Check local dependencies:
+检查环境：
 
 ```bash
 study-media doctor
 ```
 
-## Next Phases
+## 处理并打包一个视频
 
-- `study-media sync` to scan the whole course tree.
-- Better status reporting and retry behavior.
-- Optional standalone HTML export by default for selected lessons.
-- Optional launchd automation for periodic local processing.
+以 3Blue1Brown 样例为例：
+
+```bash
+conda activate study_media
+cd /Users/zhaoxin/workspace/study/study_project
+
+study-media process /Users/zhaoxin/workspace/study/courses/3Blue1Brown/Entropy-Compression.mp4
+study-media package 3Blue1Brown/Entropy-Compression
+```
+
+生成文件：
+
+```text
+/Users/zhaoxin/workspace/study/study_project/iphone_export/packages/3Blue1Brown/Entropy-Compression.study
+```
+
+`.study` 是单文件学习包，里面包含：
+
+```text
+manifest.json
+audio.m4a
+transcript.json
+transcript.md
+```
+
+## 安装 iPhone App
+
+详细步骤见：
+
+```text
+docs/ios-studyplayer.md
+```
+
+工程位置：
+
+```text
+ios/StudyPlayer/StudyPlayer.xcodeproj
+```
+
+打开 Xcode 后：
+
+```text
+选择 StudyPlayer target
+Signing & Capabilities
+Team 选择你的 Apple Account
+连接 iPhone
+点击 Run
+```
+
+## iPhone 使用
+
+1. AirDrop `Entropy-Compression.study` 到 iPhone。
+2. 保存到 `On My iPhone/StudyMedia/Inbox/`，或者直接选择用 `StudyPlayer` 打开。
+3. 打开 `StudyPlayer`。
+4. 点右上角导入按钮。
+5. 选择 `.study` 文件。
+6. 进入课程，播放音频，点击文字跳转。
+
+导入成功后，`.study` 已经复制进 App 沙盒；Files 里的原始 `.study` 可以删除。
+
+## 开发验证
+
+Python 测试：
+
+```bash
+PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_*.py'
+PYTHONPATH=src python3 -m compileall -q src tests
+```
+
+iOS 无签名构建验证：
+
+```bash
+/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild \
+  -project ios/StudyPlayer/StudyPlayer.xcodeproj \
+  -scheme StudyPlayer \
+  -destination generic/platform=iOS \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
+
