@@ -9,10 +9,12 @@ venv/
 dist/
 build/
 *.egg-info/
+xcuserdata/
+*.xcuserstate
+ios/StudyPlayer/StudyPlayer.xcodeproj/project.xcworkspace/
 
 # Local machine configuration and generated study assets.
 config.toml
 library/
 iphone_export/
 logs/
-
